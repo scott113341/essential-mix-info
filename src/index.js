@@ -8,7 +8,7 @@ export default class Episode {
 
   constructor (dir, overrides = {}) {
     this.path = path.resolve(dir);
-    this.overrides = overrides;
+    this.overrides = overrides; // title episode url size duration date
     this.cache = new Cache();
   }
 
@@ -28,6 +28,7 @@ export default class Episode {
   }
 
   async getTitle () {
+    if (this.overrides.title) return this.overrides.title;
     const info = await this._getInfoContents();
     const regex = /[\d-]+\s+-\s+(.+?)\s+- Essential Mix/;
     const match = regex.exec(info)[1];
@@ -35,6 +36,7 @@ export default class Episode {
   }
 
   async getEpisode () {
+    if (this.overrides.episode) return this.overrides.episode;
     const info = await this._getInfoContents();
     const regex = /^ESSENTIAL MIX EPISODE: (\d+)$/m;
     const match = regex.exec(info);
@@ -42,6 +44,7 @@ export default class Episode {
   }
 
   async getUrl () {
+    if (this.overrides.url) return this.overrides.url;
     const episode = await this.getEpisode();
     return `http://s352287239.onlinehome.us/podcasts/essential-mix/media/${episode}.m4a`;
   }
@@ -51,6 +54,7 @@ export default class Episode {
    * @returns {Promise.<void>}
    */
   async getSize () {
+    if (this.overrides.size) return this.overrides.size;
     const audioPath = (await this._fuzzyPaths('*.m4a'))[0];
     const stats = await promisify(fs.stat)(audioPath);
     return stats.size;
@@ -61,6 +65,7 @@ export default class Episode {
    * @returns {Promise.<boolean|number|Number>}
    */
   async getDuration () {
+    if (this.overrides.duration) return this.overrides.duration;
     const audioPath = (await this._fuzzyPaths('*.m4a'))[0];
     const stream = fs.createReadStream(audioPath);
     const metadata = await promisify(musicMeta)(stream, { duration: true });
@@ -68,6 +73,7 @@ export default class Episode {
   }
 
   async getDate () {
+    if (this.overrides.date) return this.overrides.date;
     const info = await this._getInfoContents();
     const regex = /(\d{4}-\d{2}-\d{2})/;
     return new Date(regex.exec(info)[1]);
@@ -79,11 +85,15 @@ export default class Episode {
     date.setUTCMinutes(59);
     date.setUTCSeconds(59);
 
+    const duration = await this.getDuration();
+    const d = new Date(duration * 1000);
+    const durationString = [d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds()].join(':');
+
     let xml = '';
     xml += `\t<item>`;
     xml += `\n\t\t<title>${await this.getTitle()}</title>`;
     xml += `\n\t\t<enclosure url="${await this.getUrl()}" length="${await this.getSize()}" type="audio/mp4" />`;
-    xml += `\n\t\t<itunes:duration>${await this.getDuration()}</itunes:duration>`;
+    xml += `\n\t\t<itunes:duration>${durationString}</itunes:duration>`;
     xml += `\n\t\t<pubDate>${date.toUTCString()}</pubDate>`;
     xml += `\n\t</item>`;
     return xml;
