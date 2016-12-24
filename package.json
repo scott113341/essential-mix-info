@@ -1,0 +1,47 @@
+{
+  "name": "@scott113341/essential-mix-info",
+  "version": "0.0.0",
+  "description": "Extracts info for my Essential Mix podcast.",
+  "author": "Scott Hardy",
+  "license": "MIT",
+  "repository": "git@github.com:scott113341/essential-mix-info.git",
+  "homepage": "https://github.com/scott113341/essential-mix-info",
+  "bugs": "https://github.com/scott113341/essential-mix-info/issues",
+  "keywords": [],
+  "main": "lib/index.js",
+  "files": [
+    "lib/",
+    "src/"
+  ],
+  "bin": {
+    "essential-mix-info": "lib/cli.js"
+  },
+  "scripts": {
+    "build": "shx rm -rf lib/ && shx mkdir lib/ && babel --copy-files --source-maps --out-dir lib/ src/",
+    "lint": "semistandard --fix",
+    "postinstall": "postinstall-build lib/ \"npm run build\"",
+    "test": "npm run build && node lib/test/index.js"
+  },
+  "dependencies": {
+    "bluebird": "3.4.7",
+    "musicmetadata": "2.0.5",
+    "postinstall-build": "2.1.3",
+    "shelljs": "0.7.5"
+  },
+  "devDependencies": {
+    "babel-cli": "6.18.0",
+    "babel-plugin-transform-async-to-generator": "6.16.0",
+    "babel-preset-es2015": "6.18.0",
+    "babel-preset-stage-0": "6.16.0",
+    "np": "2.10.0",
+    "semistandard": "9.1.0",
+    "shx": "0.2.0",
+    "source-map-support": "0.4.6",
+    "tape": "4.6.2"
+  },
+  "semistandard": {
+    "ignore": [
+      "/lib/"
+    ]
+  }
+}
