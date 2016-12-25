@@ -52,9 +52,3 @@ test('getDate', async t => {
   t.deepEqual(await episode.getDate(), new Date('2016-11-05'));
   t.end();
 });
-
-test('getXmlItem', async t => {
-  const episode = makeEpisode();
-  console.log(await episode.getXmlItem());
-  t.end();
-});

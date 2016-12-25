@@ -10,4 +10,5 @@ import Episode from './index.js';
   const episodeDir = path.resolve(process.cwd(), args._[0]);
   const episode = new Episode(episodeDir, args);
   console.log(await episode.getXmlItem());
+  await episode.makeCopy();
 })();

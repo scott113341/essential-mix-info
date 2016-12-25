@@ -99,6 +99,13 @@ export default class Episode {
     return xml;
   }
 
+  async makeCopy () {
+    const episode = await this.getEpisode();
+    const sourcePath = (await this._fuzzyPaths('*.m4a'))[0];
+    const destPath = path.resolve(sourcePath, '..', `${episode}.m4a`);
+    sh.cp(sourcePath, destPath);
+  }
+
 }
 
 
