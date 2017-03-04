@@ -1,10 +1,11 @@
-import { promisify } from 'bluebird';
-import fs from 'fs';
-import musicMeta from 'musicmetadata';
-import path from 'path';
-import sh from 'shelljs';
+const { promisify } = require('bluebird');
+const fs = require('fs');
+const musicMeta = require('musicmetadata');
+const path = require('path');
+const sh = require('shelljs');
+const escape = require('xml-escape');
 
-export default class Episode {
+class Episode {
 
   constructor (dir, overrides = {}) {
     this.path = path.resolve(dir);
@@ -15,7 +16,7 @@ export default class Episode {
   async _getInfoContents () {
     return this.cache.get('info', async () => {
       const infoPath = (await this._fuzzyPaths('*.txt'))[0];
-      const data = await promisify(fs.readFile)(infoPath);
+      const data = await promisify(fs.readFile)(infoPath, 'utf8');
       return data.toString('utf-16le');
     });
   }
@@ -91,7 +92,7 @@ export default class Episode {
 
     let xml = '';
     xml += `\t<item>`;
-    xml += `\n\t\t<title>${await this.getTitle()}</title>`;
+    xml += `\n\t\t<title>${escape(await this.getTitle())}</title>`;
     xml += `\n\t\t<enclosure url="${await this.getUrl()}" length="${await this.getSize()}" type="audio/mp4" />`;
     xml += `\n\t\t<itunes:duration>${durationString}</itunes:duration>`;
     xml += `\n\t\t<pubDate>${date.toUTCString()}</pubDate>`;
@@ -101,13 +102,12 @@ export default class Episode {
 
   async makeCopy () {
     const episode = await this.getEpisode();
-    const sourcePath = (await this._fuzzyPaths('*.m4a'))[0];
+    const sourcePath = Array.from(await this._fuzzyPaths('*.m4a')).sort((a, b) => b.length - a.length)[0];
     const destPath = path.resolve(sourcePath, '..', `${episode}.m4a`);
     sh.cp(sourcePath, destPath);
   }
 
 }
-
 
 class Cache {
 
@@ -126,3 +126,5 @@ class Cache {
   }
 
 }
+
+module.exports = Episode;

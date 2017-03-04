@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-import minimist from 'minimist';
-import path from 'path';
+const minimist = require('minimist');
+const path = require('path');
 
-import Episode from './index.js';
+const Episode = require('./index.js');
 
 (async () => {
   const args = minimist(process.argv.slice(2));
